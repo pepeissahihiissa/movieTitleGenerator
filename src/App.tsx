@@ -1,4 +1,5 @@
 // import React, { useState, useEffect, useRef } from 'react';
+import './fonts.css'
 import { useState, useRef, useEffect } from 'react';
 import { Download, Save, FolderOpen, Type, Palette, Frame, Sun } from 'lucide-react';
 
@@ -24,18 +25,65 @@ type Preset = {
   config: PresetConfig;
 };
 
+type FontItem = {
+  label: string;        // UI 表示名
+  family: string;       // ctx.font に渡す font-family
+};
+
+const fonts: FontItem[] = [
+  {
+    label: 'Noto Sans JP',
+    family: "MyNotoJP, 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif",
+  },
+  {
+    label: 'BIZ UDPゴシック',
+    family: "MyBIZUDPGothic, 'BIZ UDPGothic', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif",
+  },
+  {
+    label: 'Source Han Sans JP',
+    family: "MySourceHanSansJP, 'Source Han Sans JP', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif",
+  },
+  {
+    label: 'Arial Black',
+    family: 'Arial Black',
+  },
+  {
+    label: 'Impact',
+    family: 'Impact',
+  },
+  {
+    label: 'Arial',
+    family: 'Arial',
+  },
+  {
+    label: 'Times New Roman',
+    family: 'Times New Roman',
+  },
+  {
+    label: 'Courier New',
+    family: 'Courier New',
+  },
+  {
+    label: 'Comic Sans MS',
+    family: 'Comic Sans MS',
+  },
+
+];
+
+
 export default function TextDecoratorApp() {
   const [text, setText] = useState('サンプル');
   const [fontSize, setFontSize] = useState(120);
-  const [fontFamily, setFontFamily] = useState('Arial Black');
-  
+  //const [fontFamily, setFontFamily] = useState('Arial Black');
+  const [fontFamily, setFontFamily] = useState(fonts[0].family);
+
   // テキスト色（グラデーション対応）
   const [textColorType, setTextColorType] = useState<'solid' | 'gradient'>('solid'); // 'solid' or 'gradient'
   const [textColor, setTextColor] = useState('#FF0000');
   const [textGradientStart, setTextGradientStart] = useState('#FF0000');
   const [textGradientEnd, setTextGradientEnd] = useState('#FF6600');
   const [textGradientAngle, setTextGradientAngle] = useState(90);
-  
+
   const [border1Color, setBorder1Color] = useState('#FFFFFF');
   const [border1Width, setBorder1Width] = useState(8);
   const [border2Color, setBorder2Color] = useState('#000000');
@@ -45,55 +93,70 @@ export default function TextDecoratorApp() {
   const [shadowOffsetY, setShadowOffsetY] = useState(8);
   const [shadowBlur, setShadowBlur] = useState(10);
   const [shadowOpacity, setShadowOpacity] = useState(0.6);
-  
+
   const [activeTab, setActiveTab] = useState('text'); // 'text', 'border', 'shadow'
   const [presets, setPresets] = useState<Preset[]>([
-    { name: 'YouTube風', config: {
-      textColor: '#FF0000', border1Color: '#FFFFFF', border1Width: 8,
-      border2Color: '#000000', border2Width: 18, textColorType: 'solid'
-    }},
-    { name: 'ゲーム実況風', config: {
-      textColorType: 'gradient', textGradientStart: '#FFD700', textGradientEnd: '#FF8C00',
-      border1Color: '#000000', border1Width: 10, border2Color: '#FFFFFF', border2Width: 2
-    }},
-    { name: 'シンプル白', config: {
-      textColor: '#FFFFFF', border1Color: '#000000', border1Width: 6,
-      border2Color: '#333333', border2Width: 0, textColorType: 'solid'
-    }},
-    { name: 'ネオン風', config: {
-      textColorType: 'gradient', textGradientStart: '#00FFFF', textGradientEnd: '#FF00FF',
-      border1Color: '#FFFFFF', border1Width: 4, border2Color: '#000000', border2Width: 12
-    }},
+    {
+      name: 'YouTube風', config: {
+        textColor: '#FF0000', border1Color: '#FFFFFF', border1Width: 8,
+        border2Color: '#000000', border2Width: 18, textColorType: 'solid'
+      }
+    },
+    {
+      name: 'ゲーム実況風', config: {
+        textColorType: 'gradient', textGradientStart: '#FFD700', textGradientEnd: '#FF8C00',
+        border1Color: '#000000', border1Width: 10, border2Color: '#FFFFFF', border2Width: 2
+      }
+    },
+    {
+      name: 'シンプル白', config: {
+        textColor: '#FFFFFF', border1Color: '#000000', border1Width: 6,
+        border2Color: '#333333', border2Width: 0, textColorType: 'solid'
+      }
+    },
+    {
+      name: 'ネオン風', config: {
+        textColorType: 'gradient', textGradientStart: '#00FFFF', textGradientEnd: '#FF00FF',
+        border1Color: '#FFFFFF', border1Width: 4, border2Color: '#000000', border2Width: 12
+      }
+    },
   ]);
-  
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const downloadCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     drawText();
-  }, [text, fontSize, fontFamily, textColor, textColorType, textGradientStart, 
-      textGradientEnd, textGradientAngle, border1Color, border1Width, 
-      border2Color, border2Width, shadowEnabled, shadowOffsetX, 
-      shadowOffsetY, shadowBlur, shadowOpacity]);
+  }, [text, fontSize, fontFamily, textColor, textColorType, textGradientStart,
+    textGradientEnd, textGradientAngle, border1Color, border1Width,
+    border2Color, border2Width, shadowEnabled, shadowOffsetX,
+    shadowOffsetY, shadowBlur, shadowOpacity]);
 
-  const drawText = (targetCanvas = canvasRef.current) => {
+  const drawText = async (targetCanvas = canvasRef.current) => {
     const canvas = targetCanvas;
-    if (!canvas) return; 
+    if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return; 
-    
+    if (!ctx) return;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
+    // フォントが読み込まれるまで待つ
+    try {
+      await document.fonts.load(`${fontSize}px ${fontFamily}`);
+    } catch (error) {
+      console.warn('Font loading warning:', error);
+    }
+
     ctx.font = `${fontSize}px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.lineJoin = 'round';
     ctx.miterLimit = 2;
-    
+
     const x = canvas.width / 2;
     const y = canvas.height / 2;
-    
+
     // 影
     if (shadowEnabled) {
       ctx.shadowColor = `rgba(0, 0, 0, ${shadowOpacity})`;
@@ -102,40 +165,40 @@ export default function TextDecoratorApp() {
       ctx.shadowOffsetY = shadowOffsetY;
       ctx.fillStyle = 'black';
       ctx.fillText(text, x, y);
-      
+
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
     }
-    
+
     // 外側の縁（border2）
     if (border2Width > 0) {
       ctx.strokeStyle = border2Color;
       ctx.lineWidth = border2Width * 2;
       ctx.strokeText(text, x, y);
     }
-    
+
     // 内側の縁（border1）
     if (border1Width > 0) {
       ctx.strokeStyle = border1Color;
       ctx.lineWidth = border1Width * 2;
       ctx.strokeText(text, x, y);
     }
-    
+
     // テキスト本体（グラデーション対応）
     if (textColorType === 'gradient') {
       const metrics = ctx.measureText(text);
       const textHeight = fontSize;
       const textWidth = metrics.width;
-      
+
       // 角度からグラデーション方向を計算
       const angleRad = (textGradientAngle * Math.PI) / 180;
       const x1 = x - (textWidth / 2) * Math.cos(angleRad);
       const y1 = y - (textHeight / 2) * Math.sin(angleRad);
       const x2 = x + (textWidth / 2) * Math.cos(angleRad);
       const y2 = y + (textHeight / 2) * Math.sin(angleRad);
-      
+
       const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
       gradient.addColorStop(0, textGradientStart);
       gradient.addColorStop(1, textGradientEnd);
@@ -152,22 +215,22 @@ export default function TextDecoratorApp() {
 
     const ctx = downloadCanvas.getContext('2d');
     if (!ctx) return;
-    
+
     if (!canvasRef.current) return;
 
     ctx.clearRect(0, 0, downloadCanvas.width, downloadCanvas.height);
-    
+
     const scale = downloadCanvas.width / canvasRef.current.width;
-    
+
     ctx.font = `${fontSize * scale}px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.lineJoin = 'round';
     ctx.miterLimit = 2;
-    
+
     const x = downloadCanvas.width / 2;
     const y = downloadCanvas.height / 2;
-    
+
     if (shadowEnabled) {
       ctx.shadowColor = `rgba(0, 0, 0, ${shadowOpacity})`;
       ctx.shadowBlur = shadowBlur * scale;
@@ -175,36 +238,36 @@ export default function TextDecoratorApp() {
       ctx.shadowOffsetY = shadowOffsetY * scale;
       ctx.fillStyle = 'black';
       ctx.fillText(text, x, y);
-      
+
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
     }
-    
+
     if (border2Width > 0) {
       ctx.strokeStyle = border2Color;
       ctx.lineWidth = border2Width * 2 * scale;
       ctx.strokeText(text, x, y);
     }
-    
+
     if (border1Width > 0) {
       ctx.strokeStyle = border1Color;
       ctx.lineWidth = border1Width * 2 * scale;
       ctx.strokeText(text, x, y);
     }
-    
+
     if (textColorType === 'gradient') {
       const metrics = ctx.measureText(text);
       const textHeight = fontSize * scale;
       const textWidth = metrics.width;
-      
+
       const angleRad = (textGradientAngle * Math.PI) / 180;
       const x1 = x - (textWidth / 2) * Math.cos(angleRad);
       const y1 = y - (textHeight / 2) * Math.sin(angleRad);
       const x2 = x + (textWidth / 2) * Math.cos(angleRad);
       const y2 = y + (textHeight / 2) * Math.sin(angleRad);
-      
+
       const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
       gradient.addColorStop(0, textGradientStart);
       gradient.addColorStop(1, textGradientEnd);
@@ -213,7 +276,7 @@ export default function TextDecoratorApp() {
       ctx.fillStyle = textColor;
     }
     ctx.fillText(text, x, y);
-    
+
     downloadCanvas.toBlob((blob) => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
@@ -228,29 +291,29 @@ export default function TextDecoratorApp() {
   const savePreset = () => {
     const name = prompt('プリセット名を入力してください:');
     if (!name) return;
-    
-//    const config = {
-//      textColor, textColorType, textGradientStart, textGradientEnd, textGradientAngle,
-//      border1Color, border1Width, border2Color, border2Width,
-//      shadowEnabled, shadowOffsetX, shadowOffsetY, shadowBlur, shadowOpacity
-//    };
 
-const config: PresetConfig = {
-  textColor,
-  textColorType,
-  textGradientStart,
-  textGradientEnd,
-  textGradientAngle,
-  border1Color,
-  border1Width,
-  border2Color,
-  border2Width,
-  shadowEnabled,
-  shadowOffsetX,
-  shadowOffsetY,
-  shadowBlur,
-  shadowOpacity,
-};
+    //    const config = {
+    //      textColor, textColorType, textGradientStart, textGradientEnd, textGradientAngle,
+    //      border1Color, border1Width, border2Color, border2Width,
+    //      shadowEnabled, shadowOffsetX, shadowOffsetY, shadowBlur, shadowOpacity
+    //    };
+
+    const config: PresetConfig = {
+      textColor,
+      textColorType,
+      textGradientStart,
+      textGradientEnd,
+      textGradientAngle,
+      border1Color,
+      border1Width,
+      border2Color,
+      border2Width,
+      shadowEnabled,
+      shadowOffsetX,
+      shadowOffsetY,
+      shadowBlur,
+      shadowOpacity,
+    };
 
     setPresets([...presets, { name, config }]);
   };
@@ -273,11 +336,11 @@ const config: PresetConfig = {
     if (c.shadowOpacity !== undefined) setShadowOpacity(c.shadowOpacity);
   };
 
-  const fonts = [
-    'Arial Black', 'Impact', 'Arial', 'Verdana', 'Tahoma', 'Trebuchet MS',
-    'Times New Roman', 'Georgia', 'Courier New', 'Comic Sans MS',
-    'Helvetica', 'Palatino', 'Garamond', 'Bookman', 'Lucida Console'
-  ];
+  //  const fonts = [
+  //    'Arial Black', 'Impact', 'Arial', 'Verdana', 'Tahoma', 'Trebuchet MS',
+  //    'Times New Roman', 'Georgia', 'Courier New', 'Comic Sans MS',
+  //    'Helvetica', 'Palatino', 'Garamond', 'Bookman', 'Lucida Console'
+  //  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4">
@@ -322,16 +385,16 @@ const config: PresetConfig = {
           {/* プレビュー */}
           <div className="lg:col-span-3 bg-slate-800 rounded-lg p-4 shadow-xl">
             <h2 className="text-lg font-semibold mb-3">プレビュー</h2>
-            <div className="bg-slate-700 rounded-lg p-4 flex items-center justify-center mb-4" style={{minHeight: '300px'}}>
+            <div className="bg-slate-700 rounded-lg p-4 flex items-center justify-center mb-4" style={{ minHeight: '300px' }}>
               <canvas
                 ref={canvasRef}
                 width={800}
                 height={450}
                 className="max-w-full h-auto border-2 border-slate-600 rounded"
-                style={{backgroundColor: 'transparent'}}
+                style={{ backgroundColor: 'transparent' }}
               />
             </div>
-            
+
             {/* テキスト入力 */}
             <div className="mb-3">
               <input
@@ -342,7 +405,7 @@ const config: PresetConfig = {
                 placeholder="テキストを入力"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
                 <label className="block text-xs text-slate-400 mb-1">フォント</label>
@@ -352,7 +415,10 @@ const config: PresetConfig = {
                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                 >
                   {fonts.map(font => (
-                    <option key={font} value={font}>{font}</option>
+                    //                    <option key={font} value={font}>{font}</option>
+                    <option key={font.label} value={font.family}>
+                      {font.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -370,7 +436,7 @@ const config: PresetConfig = {
                 />
               </div>
             </div>
-            
+
             <button
               onClick={downloadImage}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition"
@@ -386,27 +452,24 @@ const config: PresetConfig = {
             <div className="bg-slate-800 rounded-lg p-2 shadow-xl flex gap-1">
               <button
                 onClick={() => setActiveTab('text')}
-                className={`flex-1 py-2 px-3 rounded flex items-center justify-center gap-2 text-sm transition ${
-                  activeTab === 'text' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
-                }`}
+                className={`flex-1 py-2 px-3 rounded flex items-center justify-center gap-2 text-sm transition ${activeTab === 'text' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
+                  }`}
               >
                 <Palette className="w-4 h-4" />
                 テキスト
               </button>
               <button
                 onClick={() => setActiveTab('border')}
-                className={`flex-1 py-2 px-3 rounded flex items-center justify-center gap-2 text-sm transition ${
-                  activeTab === 'border' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
-                }`}
+                className={`flex-1 py-2 px-3 rounded flex items-center justify-center gap-2 text-sm transition ${activeTab === 'border' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
+                  }`}
               >
                 <Frame className="w-4 h-4" />
                 縁取り
               </button>
               <button
                 onClick={() => setActiveTab('shadow')}
-                className={`flex-1 py-2 px-3 rounded flex items-center justify-center gap-2 text-sm transition ${
-                  activeTab === 'shadow' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
-                }`}
+                className={`flex-1 py-2 px-3 rounded flex items-center justify-center gap-2 text-sm transition ${activeTab === 'shadow' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
+                  }`}
               >
                 <Sun className="w-4 h-4" />
                 影
@@ -418,21 +481,19 @@ const config: PresetConfig = {
               {activeTab === 'text' && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold mb-3">テキストカラー</h3>
-                  
+
                   <div className="flex gap-2">
                     <button
                       onClick={() => setTextColorType('solid')}
-                      className={`flex-1 py-2 px-3 rounded text-sm transition ${
-                        textColorType === 'solid' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
-                      }`}
+                      className={`flex-1 py-2 px-3 rounded text-sm transition ${textColorType === 'solid' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
+                        }`}
                     >
                       単色
                     </button>
                     <button
                       onClick={() => setTextColorType('gradient')}
-                      className={`flex-1 py-2 px-3 rounded text-sm transition ${
-                        textColorType === 'gradient' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
-                      }`}
+                      className={`flex-1 py-2 px-3 rounded text-sm transition ${textColorType === 'gradient' ? 'bg-slate-600' : 'bg-slate-700 hover:bg-slate-650'
+                        }`}
                     >
                       グラデーション
                     </button>
@@ -512,7 +573,7 @@ const config: PresetConfig = {
               {activeTab === 'border' && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold mb-3">縁取り設定</h3>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-2">内側の縁（1本目）</label>
                     <div className="flex gap-2 mb-2">
@@ -587,7 +648,7 @@ const config: PresetConfig = {
                       <span className="text-sm">有効</span>
                     </label>
                   </div>
-                  
+
                   {shadowEnabled && (
                     <div className="space-y-3">
                       <div>
@@ -658,7 +719,7 @@ const config: PresetConfig = {
           ref={downloadCanvasRef}
           width={1920}
           height={1080}
-          style={{display: 'none'}}
+          style={{ display: 'none' }}
         />
       </div>
     </div>
