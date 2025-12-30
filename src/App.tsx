@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+// import React, { useState, useEffect, useRef } from 'react';
 import { Download, Save, FolderOpen, Type, Palette, Frame, Sun } from 'lucide-react';
 
 export default function TextDecoratorApp() {
@@ -56,6 +56,7 @@ export default function TextDecoratorApp() {
   const drawText = (targetCanvas = canvasRef.current) => {
     const canvas = targetCanvas;
     const ctx = canvas.getContext('2d');
+    if (!canvas) return; 
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
