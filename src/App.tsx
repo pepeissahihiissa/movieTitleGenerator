@@ -1,5 +1,5 @@
 // import React, { useState, useEffect, useRef } from 'react';
-import React, { useState} from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Download, Save, FolderOpen, Type, Palette, Frame, Sun } from 'lucide-react';
 
 export default function TextDecoratorApp() {
