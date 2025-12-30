@@ -30,7 +30,7 @@ export default function TextDecoratorApp() {
   const [fontFamily, setFontFamily] = useState('Arial Black');
   
   // テキスト色（グラデーション対応）
-  const [textColorType, setTextColorType] = useState('solid'); // 'solid' or 'gradient'
+  const [textColorType, setTextColorType] = useState<'solid' | 'gradient'>('solid'); // 'solid' or 'gradient'
   const [textColor, setTextColor] = useState('#FF0000');
   const [textGradientStart, setTextGradientStart] = useState('#FF0000');
   const [textGradientEnd, setTextGradientEnd] = useState('#FF6600');
