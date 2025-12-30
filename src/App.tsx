@@ -229,12 +229,29 @@ export default function TextDecoratorApp() {
     const name = prompt('プリセット名を入力してください:');
     if (!name) return;
     
-    const config = {
-      textColor, textColorType, textGradientStart, textGradientEnd, textGradientAngle,
-      border1Color, border1Width, border2Color, border2Width,
-      shadowEnabled, shadowOffsetX, shadowOffsetY, shadowBlur, shadowOpacity
-    };
-    
+//    const config = {
+//      textColor, textColorType, textGradientStart, textGradientEnd, textGradientAngle,
+//      border1Color, border1Width, border2Color, border2Width,
+//      shadowEnabled, shadowOffsetX, shadowOffsetY, shadowBlur, shadowOpacity
+//    };
+
+const config: PresetConfig = {
+  textColor,
+  textColorType,
+  textGradientStart,
+  textGradientEnd,
+  textGradientAngle,
+  border1Color,
+  border1Width,
+  border2Color,
+  border2Width,
+  shadowEnabled,
+  shadowOffsetX,
+  shadowOffsetY,
+  shadowBlur,
+  shadowOpacity,
+};
+
     setPresets([...presets, { name, config }]);
   };
 
