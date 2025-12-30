@@ -2,28 +2,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Download, Save, FolderOpen, Type, Palette, Frame, Sun } from 'lucide-react';
 
-type PresetConfig = {
-  textColor?: string;
-  textColorType: 'solid' | 'gradient';
-  textGradientStart?: string;
-  textGradientEnd?: string;
-  textGradientAngle?: number;
-  border1Color: string;
-  border1Width: number;
-  border2Color: string;
-  border2Width: number;
-  shadowEnabled?: boolean;
-  shadowOffsetX?: number;
-  shadowOffsetY?: number;
-  shadowBlur?: number;
-  shadowOpacity?: number;
-};
-
-type Preset = {
-  name: string;
-  config: PresetConfig;
-};
-
 export default function TextDecoratorApp() {
   const [text, setText] = useState('サンプル');
   const [fontSize, setFontSize] = useState(120);
@@ -47,7 +25,7 @@ export default function TextDecoratorApp() {
   const [shadowOpacity, setShadowOpacity] = useState(0.6);
   
   const [activeTab, setActiveTab] = useState('text'); // 'text', 'border', 'shadow'
-  const [presets, setPresets] = useState<Preset[]>([
+  const [presets, setPresets] = useState([
     { name: 'YouTube風', config: {
       textColor: '#FF0000', border1Color: '#FFFFFF', border1Width: 8,
       border2Color: '#000000', border2Width: 18, textColorType: 'solid'
@@ -66,8 +44,8 @@ export default function TextDecoratorApp() {
     }},
   ]);
   
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const downloadCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef(null);
+  const downloadCanvasRef = useRef(null);
 
   useEffect(() => {
     drawText();
@@ -78,10 +56,8 @@ export default function TextDecoratorApp() {
 
   const drawText = (targetCanvas = canvasRef.current) => {
     const canvas = targetCanvas;
-    if (!canvas) return; 
-
     const ctx = canvas.getContext('2d');
-    if (!ctx) return; 
+    if (!canvas) return; 
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -148,13 +124,8 @@ export default function TextDecoratorApp() {
 
   const downloadImage = () => {
     const downloadCanvas = downloadCanvasRef.current;
-    if (!downloadCanvas) return;
-
     const ctx = downloadCanvas.getContext('2d');
-    if (!ctx) return;
     
-    if (!canvasRef.current) return;
-
     ctx.clearRect(0, 0, downloadCanvas.width, downloadCanvas.height);
     
     const scale = downloadCanvas.width / canvasRef.current.width;
@@ -215,7 +186,6 @@ export default function TextDecoratorApp() {
     ctx.fillText(text, x, y);
     
     downloadCanvas.toBlob((blob) => {
-      if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -238,7 +208,7 @@ export default function TextDecoratorApp() {
     setPresets([...presets, { name, config }]);
   };
 
-  const loadPreset = (preset: Preset) => {
+  const loadPreset = (preset) => {
     const c = preset.config;
     if (c.textColor !== undefined) setTextColor(c.textColor);
     if (c.textColorType !== undefined) setTextColorType(c.textColorType);
